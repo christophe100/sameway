@@ -1,0 +1,122 @@
+{
+  "academic_year": "2025-2026",
+  "country": "Togo",
+  "universities_and_institutions": [
+    {
+      "name": "Université de Lomé",
+      "type": "public",
+      "city": "Lomé",
+      "campuses": [
+        {
+          "name": "Université de Lomé",
+          "quartier": "Centre-ville"
+        }
+      ],
+      "status": "reconnue par l’État"
+    },
+    {
+      "name": "Université de Kara",
+      "type": "public",
+      "city": "Kara",
+      "campuses": [
+        {
+          "name": "Campus principal",
+          "quartier": "Centre-ville"
+        }
+      ],
+      "status": "reconnue par l’État"
+    },
+    {
+      "name": "École Normale Supérieure (ENS) d’Atakpamé",
+      "type": "public",
+      "city": "Atakpamé",
+      "campuses": [
+        {
+          "name": "ENS",
+          "quartier": "Centre-ville"
+        }
+      ],
+      "status": "reconnue par l’État"
+    },
+    {
+      "name": "Centre International de Recherche et d’Étude de Langues – Village du Bénin",
+      "type": "public",
+      "city": "Lomé",
+      "campuses": [
+        {
+          "name": "Campus Village du Bénin",
+          "quartier": "Non spécifié"
+        }
+      ],
+      "status": "reconnu par l’État"
+    },
+    {
+      "name": "",
+      "type": "private",
+      "city": "Lomé",
+      "campuses": [
+        {
+          "name": "ESGIS-ADIDOGOMÉ",
+          "quartier": "Adidogomé, Lomé"
+        },
+        {
+          "name": "ESGIS-AVEDJI",
+          "quartier": "Avédji, Lomé"
+        },
+        {
+          "name": "ESGIS-KODJOVIAKOPE",
+          "quartier": "Kodjoviakopé, Lomé"
+        }
+      ],
+      "status": "reconnue par l’État"
+    },
+    {
+      "name": "Institut Africain d’Administration et d’Études Commerciales (IAEC)",
+      "type": "private",
+      "city": "Lomé",
+      "campuses": [
+        {
+          "name": "IAEC",
+          "quartier": "Adéwui, Lomé"
+        }
+      ],
+      "status": "reconnu par l’État"
+    },
+    {
+      "name": "École Supérieure des Affaires (ESA)",
+      "type": "private",
+      "city": "Lomé",
+      "campuses": [
+        {
+          "name": "ESA",
+          "quartier": "Super-Taco / Agoè-Nyivé, Lomé"
+        }
+      ],
+      "status": "reconnue par l’État"
+    },
+    {
+      "name": "Centre de Perfectionnement aux Techniques Économiques et Commerciales (CPTEC)",
+      "type": "private",
+      "city": "Lomé",
+      "campuses": [
+        {
+          "name": "CPTEC",
+          "quartier": "Grand Lomé"
+        }
+      ],
+      "status": "reconnu par l’État"
+    },
+    {
+      "name": "Carrefour Informatique et Bureautique – Institut des Nouvelles Technologies Appliquées (CIB-INTA)",
+      "type": "private",
+      "city": "Lomé",
+      "campuses": [
+        {
+          "name": "CIB-INTA",
+          "quartier": "Grand Lomé"
+        }
+      ],
+      "status": "reconnu par l’État"
+    }
+  ]
+}
