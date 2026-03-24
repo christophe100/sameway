@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import reservationService from "../../klaus/src/Services/Reservationservice";
-import trajetService from "../../klaus/src/Services/trajetservice";
+import reservationService from "../../backend/src/Services/Reservationservice";
+import evaluationService from "../../backend/src/Services/EvaluationService";
 import { motion } from "motion/react";
 
 const GererReservations = () => {
@@ -12,6 +12,9 @@ const GererReservations = () => {
   const [selectedStatus, setSelectedStatus] = useState("tous");
   const [expandedId, setExpandedId] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
+  const [evaluationChecks, setEvaluationChecks] = useState({});
+  const [evaluationsGivenIds, setEvaluationsGivenIds] = useState(new Set());
+  const [evaluationForms, setEvaluationForms] = useState({});
 
   const statusColors = {
     confirmee: "bg-green-100 text-green-800",
@@ -110,6 +113,53 @@ const GererReservations = () => {
     }
   }, [selectedStatus, reservations]);
 
+  useEffect(() => {
+    const loadEvaluationContext = async () => {
+      const terminees = (
+        Array.isArray(reservations) ? reservations : []
+      ).filter((res) => res.statut === "terminee");
+
+      if (terminees.length === 0) {
+        setEvaluationChecks({});
+        return;
+      }
+
+      const checks = {};
+
+      await Promise.all(
+        terminees.map(async (res) => {
+          try {
+            const result = await evaluationService.canEvaluate(res._id);
+            checks[res._id] = result;
+          } catch {
+            checks[res._id] = {
+              canEvaluate: false,
+              message: "Évaluation indisponible pour le moment",
+            };
+          }
+        }),
+      );
+
+      setEvaluationChecks(checks);
+    };
+
+    const loadGivenEvaluations = async () => {
+      try {
+        const result = await evaluationService.getGivenEvaluations();
+        const list = result.evaluations || [];
+        const ids = new Set(
+          list.map((ev) => String(ev.reservation?._id || ev.reservation)),
+        );
+        setEvaluationsGivenIds(ids);
+      } catch {
+        setEvaluationsGivenIds(new Set());
+      }
+    };
+
+    loadEvaluationContext();
+    loadGivenEvaluations();
+  }, [reservations]);
+
   const handleCancelReservation = async (reservationId) => {
     if (
       window.confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")
@@ -147,6 +197,49 @@ const GererReservations = () => {
       );
     } catch (err) {
       alert("Erreur lors de la confirmation: " + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const updateEvaluationField = (reservationId, field, value) => {
+    setEvaluationForms((prev) => ({
+      ...prev,
+      [reservationId]: {
+        note: prev[reservationId]?.note || 5,
+        commentaire: prev[reservationId]?.commentaire || "",
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleSubmitEvaluation = async (reservation) => {
+    const reservationId = reservation._id;
+    const form = evaluationForms[reservationId] || { note: 5, commentaire: "" };
+
+    try {
+      setActionLoading(reservationId);
+      await evaluationService.createEvaluation({
+        reservation: reservationId,
+        note: Number(form.note || 5),
+        commentaire: form.commentaire || "",
+      });
+
+      setEvaluationsGivenIds((prev) => {
+        const next = new Set(prev);
+        next.add(String(reservationId));
+        return next;
+      });
+
+      setEvaluationChecks((prev) => ({
+        ...prev,
+        [reservationId]: {
+          canEvaluate: false,
+          message: "Vous avez déjà évalué ce trajet",
+        },
+      }));
+    } catch (err) {
+      alert(err.message || "Erreur lors de l'envoi de l'évaluation");
     } finally {
       setActionLoading(null);
     }
@@ -307,19 +400,20 @@ const GererReservations = () => {
                           <div className="space-y-2 text-sm">
                             <p className="text-gray-600">
                               <span className="font-semibold">Conducteur:</span>{" "}
-                              {reservation.trajet?.conducteur?.nom || "N/A"}
+                              {reservation.trajet?.conducteur?.nom.toUpperCase() ||
+                                "N/A"}
                             </p>
                             <p className="text-gray-600">
                               <span className="font-semibold">Téléphone:</span>{" "}
                               {reservation.trajet?.conducteur?.telephone ||
                                 "N/A"}
                             </p>
-                            <p className="text-gray-600">
+                            {/* <p className="text-gray-600">
                               <span className="font-semibold">
                                 Durée estimée:
                               </span>{" "}
                               {reservation.trajet?.dureeEstimee || "N/A"}
-                            </p>
+                            </p> */}
                           </div>
                         </div>
 
@@ -401,6 +495,86 @@ const GererReservations = () => {
                           Fermer
                         </button>
                       </div>
+
+                      {reservation.statut === "terminee" && (
+                        <div className="mt-6 p-4 bg-white rounded-lg border border-teal-100">
+                          <h4 className="font-semibold text-gray-900 mb-3">
+                            Section évaluation du trajet terminé
+                          </h4>
+
+                          {evaluationsGivenIds.has(String(reservation._id)) ? (
+                            <p className="text-green-700 font-medium">
+                              Merci, vous avez déjà envoyé votre évaluation.
+                            </p>
+                          ) : evaluationChecks[reservation._id]?.canEvaluate ? (
+                            <div className="space-y-3">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Note
+                                </label>
+                                <select
+                                  value={
+                                    evaluationForms[reservation._id]?.note || 5
+                                  }
+                                  onChange={(e) =>
+                                    updateEvaluationField(
+                                      reservation._id,
+                                      "note",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full md:w-48 border rounded-lg px-3 py-2"
+                                >
+                                  <option value="5">5 - Excellent</option>
+                                  <option value="4">4 - Très bien</option>
+                                  <option value="3">3 - Bien</option>
+                                  <option value="2">2 - Moyen</option>
+                                  <option value="1">1 - Insuffisant</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Commentaire (optionnel)
+                                </label>
+                                <textarea
+                                  rows={3}
+                                  value={
+                                    evaluationForms[reservation._id]
+                                      ?.commentaire || ""
+                                  }
+                                  onChange={(e) =>
+                                    updateEvaluationField(
+                                      reservation._id,
+                                      "commentaire",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full border rounded-lg px-3 py-2"
+                                  placeholder="Partagez votre avis sur ce trajet..."
+                                />
+                              </div>
+
+                              <button
+                                onClick={() =>
+                                  handleSubmitEvaluation(reservation)
+                                }
+                                disabled={actionLoading === reservation._id}
+                                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-400 text-white rounded-lg font-semibold"
+                              >
+                                {actionLoading === reservation._id
+                                  ? "Envoi..."
+                                  : "Envoyer mon évaluation"}
+                              </button>
+                            </div>
+                          ) : (
+                            <p className="text-gray-600">
+                              {evaluationChecks[reservation._id]?.message ||
+                                "L'évaluation n'est pas encore disponible."}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

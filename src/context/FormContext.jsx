@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer } from "react";
-import trajetService from "../../klaus/src/Services/trajetservice";
+import trajetService from "../../backend/src/Services/trajetservice";
 
 // Création du contexte pour le formulaire
 const FormContext = createContext(null);
@@ -223,17 +223,25 @@ export const FormProvider = ({ children }) => {
   const searchTrajets = async (overrides = {}) => {
     dispatch({ type: actionTypes.SUBMIT_START });
     try {
+      const depart = overrides.depart ?? state.depart;
+      const destination = overrides.destination ?? state.destination;
+      const date = overrides.date ?? state.date;
+      const heure = overrides.heure ?? state.heure;
+
       const params = {
-        depart: overrides.depart ?? state.depart,
-        destination: overrides.destination ?? state.destination,
-        date: overrides.date ?? state.date,
-        heure: overrides.heure ?? state.heure,
+        // Champs attendus par le backend
+        ville_depart: depart,
+        ville_arrivee: destination,
+        date_depart: date,
+        heure_depart: heure,
       };
-      const results = await trajetService.searchTrajets(params);
+      const response = await trajetService.searchTrajets(params);
+      const results = Array.isArray(response)
+        ? response
+        : response?.trajets || [];
       dispatch({ type: actionTypes.SET_SEARCH_RESULTS, payload: results });
       dispatch({ type: actionTypes.SUBMIT_END });
-      console.log(results);
-      
+
       return results;
     } catch (err) {
       dispatch({

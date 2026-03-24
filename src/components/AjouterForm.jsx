@@ -2,7 +2,7 @@ import { useFormContext } from "../context/FormContext";
 import { useEffect, useRef, useState } from "react";
 import Input from "./Input";
 import { motion } from "motion/react";
-import trajetService from "../../klaus/src/Services/trajetservice";
+import trajetService from "../../backend/src/Services/trajetservice";
 
 const AjouterForm = ({ onSubmit }) => {
   const [depart, setDepart] = useState("");
@@ -119,7 +119,7 @@ const AjouterForm = ({ onSubmit }) => {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       onSubmit={handleFormSubmit}
-      className="flex flex-col items-center justify-center w-96 md:w-1/3 bg-[rgba(0,0,0,0.28)] backdrop-blur-sm rounded-lg shadow-xl shadow-[#313131] gap-10 p-10"
+      className="flex flex-col items-center justify-center w-90 md:w-1/3 bg-[rgba(0,0,0,0.28)] backdrop-blur-sm rounded-lg shadow-xl shadow-[#313131] gap-10 p-10"
       ref={wrapperRef}
     >
       {/* Messages d'erreur et de succès */}

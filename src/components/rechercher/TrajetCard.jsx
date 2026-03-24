@@ -1,6 +1,6 @@
 import { useState } from "react";
-import reservationService from "../../../klaus/src/Services/Reservationservice";
-import authService from "../../../klaus/src/Services/authservice";
+import reservationService from "../../../backend/src/Services/Reservationservice";
+import authService from "../../../backend/src/Services/authservice";
 import WhatsAppButton from "../WhatsappButton";
 import { useNavigate } from "react-router";
 
@@ -9,6 +9,7 @@ const TrajetCard = ({ trajet }) => {
     id,
     driverName,
     driverInitial,
+    driverPhoto,
     driverRating,
     departCity,
     destinationCity,
@@ -36,8 +37,7 @@ const TrajetCard = ({ trajet }) => {
         alert("Impossible de réserver : identifiant du trajet manquant.");
         return;
       }
-      
-      
+
       const payload = {
         trajet: trajetId,
         passager: user._id || user.id,
@@ -55,7 +55,6 @@ const TrajetCard = ({ trajet }) => {
       const msg = err?.message || err?.message || JSON.stringify(err);
       alert("Erreur lors de la réservation: " + msg);
     } finally {
-
       setIsReserving(false);
       navigate("/gerer-reservations");
     }
@@ -105,9 +104,19 @@ const TrajetCard = ({ trajet }) => {
         <div className="flex items-center gap-4 w-full md:w-auto">
           {/* Avatar circulaire */}
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-black flex items-center justify-center text-white text-xl md:text-2xl font-bold">
-              {driverInitial}
-            </div>
+            {driverPhoto ? (
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shrink-0">
+                <img
+                  src={driverPhoto}
+                  alt={`Photo de ${driverName}`}
+                  className="w-full h-full object-cover block"
+                />
+              </div>
+            ) : (
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-black flex items-center justify-center text-white text-xl md:text-2xl font-bold shrink-0">
+                {driverInitial}
+              </div>
+            )}
           </div>
 
           {/* Informations conducteur */}

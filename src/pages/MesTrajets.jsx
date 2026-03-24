@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import PageBackground from "../components/PageBackground";
-import trajetService from "../../klaus/src/Services/trajetservice";
-import reservationService from "../../klaus/src/Services/Reservationservice";
-import authService from "../../klaus/src/Services/authservice";
+import trajetService from "../../backend/src/Services/trajetservice";
+import reservationService from "../../backend/src/Services/Reservationservice";
+import authService from "../../backend/src/Services/authservice";
+import { Trash2 } from "lucide-react";
 
 const MesTrajets = () => {
   const [trips, setTrips] = useState([]);
@@ -82,6 +83,32 @@ const MesTrajets = () => {
     }
   };
 
+  const handleCompleteTrajet = async (trajet) => {
+    const id = trajet._id || trajet.id;
+    if (!id) return;
+
+    if (
+      !window.confirm(
+        "Marquer ce trajet comme terminé ? Les passagers pourront vous évaluer.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await trajetService.completeTrajet(id);
+      await fetchMyTrajets();
+      // Refresh reservations displayed for this trip if open
+      if (expanded[id]) {
+        const res = await reservationService.getTrajetReservations(id);
+        const list = res.reservations || res;
+        setReservationsMap((m) => ({ ...m, [id]: list }));
+      }
+    } catch (err) {
+      alert(err.message || "Erreur lors de la clôture du trajet");
+    }
+  };
+
   return (
     <div className="  pt-30 px-4 min-h-screen bg-linear-to-b from-[#51898E] to-[#172628] w-full">
       <div className="max-w-4xl mx-auto">
@@ -143,10 +170,10 @@ const MesTrajets = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap md:flex-col items-center gap-2">
                   <button
                     onClick={() => toggleReservations(t)}
-                    className="btn btn-sm bg-blue-500 hover:bg-blue-600 text-white rounded"
+                    className="btn btn-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded"
                   >
                     {expanded[id]
                       ? "Masquer réservations"
@@ -155,11 +182,19 @@ const MesTrajets = () => {
 
                   {isOwner && (
                     <>
+                      {t.statut !== "termine" && t.statut !== "annule" && (
+                        <button
+                          onClick={() => handleCompleteTrajet(t)}
+                          className="btn btn-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded"
+                        >
+                          Marquer terminé
+                        </button>
+                      )}
                       <button
                         onClick={() => handleDelete(t)}
                         className="btn btn-sm bg-red-500 hover:bg-red-600 text-white rounded"
                       >
-                        Supprimer
+                        <Trash2 className="w-4 h-4" /> Supprimer
                       </button>
                     </>
                   )}
@@ -167,7 +202,9 @@ const MesTrajets = () => {
 
                 {expanded[id] && (
                   <div className=" bg-[#51898E] p-3 rounded  shadow-inner">
-                    <h4 className="font-semibold mb-2 text-white">Réservations</h4>
+                    <h4 className="font-semibold mb-2 text-white">
+                      Réservations
+                    </h4>
                     {(!reservationsMap[id] ||
                       reservationsMap[id].length === 0) && (
                       <div className="text-sm text-white">
@@ -205,7 +242,7 @@ const MesTrajets = () => {
                                 Confirmer
                               </button>
                             ) : (
-                              <div className="text-sm  badge badge-sm badge-ghost">
+                              <div className="text-sm ml-2 badge badge-sm badge-ghost">
                                 {r.statut || r.status}
                               </div>
                             )}

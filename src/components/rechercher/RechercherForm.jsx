@@ -4,7 +4,7 @@ import Input from "../Input";
 import { Search } from "lucide-react";
 import { motion } from "motion/react";
 
-const RechercherForm = () => {
+const RechercherForm = ({ onSearch }) => {
   const {
     state,
     loadCampuses,
@@ -13,7 +13,6 @@ const RechercherForm = () => {
     handleDestChange,
     selectDepart,
     selectDest,
-    submitForm,
     searchTrajets,
     closeDropdowns,
     getChangeHandler,
@@ -24,7 +23,7 @@ const RechercherForm = () => {
   // Charger les campus au montage
   useEffect(() => {
     loadCampuses();
-  }, []);
+  }, [loadCampuses]);
 
   // Fermer les dropdowns au clic externe
   useEffect(() => {
@@ -36,13 +35,15 @@ const RechercherForm = () => {
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, [closeDropdowns]);
-const handleSearch = async () => {
-  await searchTrajets();
-};
+  const handleSearch = async () => {
+    const results = await searchTrajets();
+    if (typeof onSearch === "function") {
+      onSearch(results);
+    }
+  };
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    handleSearch()
-    console.log(state.searchResults)
+    handleSearch();
     // onSubmit(state);
   };
 

@@ -5,7 +5,7 @@ import img from "../assets/images/Logo.png";
 const Footer = () => {
   return (
  
-      <footer className="footer footer-horizontal footer-center bg-base-200 text-base-content rounded p-10 relative w-full bottom-0 mt-10">
+      <footer className="footer footer-horizontal footer-center bg-base-200 text-base-content rounded pb-4 relative w-full bottom-0 mt-10">
         <nav>
           <Link
               to={"/"}

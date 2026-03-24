@@ -1,6 +1,5 @@
 import background from "../assets/images/background.png";
 import RechercherForm from "./RechercherForm";
-import StackedCards from "./StackedCards";
 import {motion} from "motion/react";
 
 const Header = () => {

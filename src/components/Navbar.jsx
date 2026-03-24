@@ -9,7 +9,7 @@ import {
 import logo from "../assets/images/Logo.png";
 import { Link, NavLink } from "react-router";
 import { useState, useEffect } from "react";
-import authService from "../../klaus/src/Services/authservice";
+import authService from "../../backend/src/Services/authservice";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

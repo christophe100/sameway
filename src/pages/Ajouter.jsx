@@ -10,9 +10,9 @@ const Ajouter = () => {
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="  px-5 text-left "
+        className="  px-5 "
       >
-        <h1 className=" text-3xl md:text-4xl font-bold ">Ajouter un trajet</h1>
+        <h1 className=" text-3xl md:text-4xl font-bold relative right-15 md:right-0">Ajouter un trajet</h1>
       </motion.div>
       <AjouterForm />
     </div>
