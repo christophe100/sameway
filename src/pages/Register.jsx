@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import axios from "axios";
+import authService from "../../backend/src/Services/authservice";
 
 const Register = () => {
   const style = {
@@ -68,7 +68,6 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const base = "http://localhost:5000";
       const tel = (num || "").replace(/\D/g, "");
       const payload = {
         nom: name,
@@ -77,21 +76,15 @@ const Register = () => {
         password,
         telephone: tel,
       };
-      console.log(payload);
-      
-      const res = await axios.post(`${base}/api/auth/register`, payload,{ withCredentials: true });
+      const res = await authService.register(payload);
 
-      if (res.data?.success && res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user || null));
+      if (res?.success && res.token) {
         navigate("/login");
       } else {
-        setServerError(res.data?.message || "Erreur inconnue");
+        setServerError(res?.message || "Erreur inconnue");
       }
     } catch (err) {
-      setServerError(
-        err.response?.data?.message || err.message || "Erreur serveur",
-      );
+      setServerError(err?.message || "Erreur serveur");
     } finally {
       setLoading(false);
     }

@@ -56,7 +56,7 @@ const TrajetCard = ({ trajet }) => {
       alert("Erreur lors de la réservation: " + msg);
     } finally {
       setIsReserving(false);
-      navigate("/gerer-reservations");
+      // navigate("/gerer-reservations");
     }
   };
 

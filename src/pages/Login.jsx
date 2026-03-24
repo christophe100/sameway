@@ -1,7 +1,7 @@
-import axios from "axios";
 import Input from "../components/Input";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import authService from "../../backend/src/Services/authservice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,33 +13,31 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: appeler l'API de connexion
+    setServerError(null);
+    setSuccessMessage(null);
+
     try {
-      const base = "http://localhost:5000";
       const payload = {
         email,
         password,
       };
 
-      const res = await axios.post(`${base}/api/auth/login`, payload, {
-        withCredentials: true,
-      });
+      const res = await authService.login(payload);
 
-      if (res.data?.success && res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user || null));
+      if (res?.success && res.token) {
         setSuccessMessage("Connexion réussie !");
+
         setTimeout(() => {
-          location.reload(true);
-        }, 1000);
-        navigate("/profil");
+          navigate("/profil");
+          setTimeout(() => {
+            window.location.reload();
+          }, 50);
+        }, 700);
       } else {
-        setServerError(res.data?.message || "Erreur inconnue");
+        setServerError(res?.message || "Erreur inconnue");
       }
     } catch (err) {
-      setServerError(
-        err.response?.data?.message || err.message || "Erreur serveur",
-      );
+      setServerError(err?.message || "Erreur serveur");
     }
   };
 
