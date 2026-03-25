@@ -22,9 +22,6 @@ const {
  *   - PUT  /api/auth/update-password → Changer son mot de passe
  */
 
-// ============================================
-// ROUTES PUBLIQUES
-// ============================================
 
 /**
  * @route   POST /api/auth/register
@@ -62,9 +59,6 @@ router.post('/register', register);
  */
 router.post('/login', login);
 
-// ============================================
-// ROUTES PROTÉGÉES (nécessitent un token)
-// ============================================
 
 /**
  * @route   GET /api/auth/me
